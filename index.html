@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FRANKEN-LAB</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Lab theme ── */
+    :root {
+      --lab-bg:      #0a0d0f;
+      --lab-panel:   #111518;
+      --lab-border:  #2a3a2a;
+      --lab-green:   #39ff14;
+      --lab-amber:   #ffb300;
+      --lab-red:     #ff3c3c;
+      --lab-teal:    #00e5cc;
+      --lab-text:    #c8d8c0;
+      --lab-dim:     #556655;
+      --header-h:    48px;
+      --footer-h:    32px;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--lab-bg);
+      color: var(--lab-text);
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+    }
+
+    /* ── Outer lab console ── */
+    #lab-console {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Header ── */
+    #lab-header {
+      flex: 0 0 var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--lab-panel);
+      border-bottom: 2px solid var(--lab-border);
+      user-select: none;
+    }
+
+    #lab-header .lab-title {
+      font-size: 1.1rem;
+      letter-spacing: 0.25em;
+      color: var(--lab-green);
+      text-transform: uppercase;
+    }
+
+    #lab-header .lab-title span {
+      color: var(--lab-amber);
+    }
+
+    #lab-header .lab-status {
+      font-size: 0.7rem;
+      color: var(--lab-dim);
+      letter-spacing: 0.15em;
+    }
+
+    /* Blinking power LED */
+    #lab-header .led {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--lab-green);
+      box-shadow: 0 0 6px var(--lab-green);
+      animation: blink 2s step-start infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    /* ── Main area: canvas + DOM screens side by side then stacked ── */
+    #lab-main {
+      flex: 1 1 auto;
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    /* Canvas fills the available space */
+    #game {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      /* scanline texture via CSS — zero assets */
+      image-rendering: pixelated;
+    }
+
+    /* DOM overlay for screens (STITCH picker, END text, etc.) */
+    #dom-root {
+      position: absolute;
+      inset: 0;
+      pointer-events: none; /* phases that need clicks set pointer-events on children */
+    }
+
+    /* ── Footer ── */
+    #lab-footer {
+      flex: 0 0 var(--footer-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--lab-panel);
+      border-top: 2px solid var(--lab-border);
+      font-size: 0.65rem;
+      color: var(--lab-dim);
+      letter-spacing: 0.1em;
+      user-select: none;
+    }
+
+    #lab-footer .key-hint {
+      color: var(--lab-amber);
+    }
+
+    /* ── Scanline overlay (zero assets, CSS only) ── */
+    #lab-main::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ── Responsive: narrow viewports (mobile portrait) ── */
+    @media (max-width: 480px) {
+      #lab-header .lab-status { display: none; }
+      #lab-header .lab-title  { font-size: 0.9rem; }
+      #lab-footer {
+        font-size: 0.5rem;
+        padding: 0 8px;
+        flex-wrap: wrap;
+        gap: 2px;
+      }
+      #lab-footer > span:first-child {
+        /* hide the debug key hints on mobile to avoid overflow */
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="lab-console">
+
+    <header id="lab-header">
+      <div class="lab-title">
+        <span class="led"></span>
+        FRANKEN<span>-LAB</span>
+      </div>
+      <div class="lab-status" id="phase-label">SYSTEM BOOT</div>
+      <div class="lab-status">KIROWEEN 2026</div>
+    </header>
+
+    <main id="lab-main">
+      <canvas id="game"></canvas>
+      <div id="dom-root"></div>
+    </main>
+
+    <footer id="lab-footer">
+      <span>
+        <span class="key-hint">[1]</span> TITLE &nbsp;
+        <span class="key-hint">[2]</span> STITCH &nbsp;
+        <span class="key-hint">[3]</span> ZAP &nbsp;
+        <span class="key-hint">[4]</span> SURVIVE &nbsp;
+        <span class="key-hint">[5]</span> END
+      </span>
+      <span>ZERO ASSETS · ALL SYNTHESIZED</span>
+    </footer>
+
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
